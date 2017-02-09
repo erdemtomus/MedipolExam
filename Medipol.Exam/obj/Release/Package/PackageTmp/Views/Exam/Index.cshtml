@@ -1,0 +1,97 @@
+﻿@using Medipol.Exam.Models
+@using Medipol.Exam.ViewModels
+@model ExamQuestionsVM
+
+@{
+    ViewBag.Title = Model.CurrentExam.Name;
+    string rescheck = "";
+}
+@*<script src = "~/Scripts/jquery-1.10.2.js" ></script>
+<script src="~/Scripts/jquery.validate.js"></script>*@
+
+@*@foreach (Question q in Questions)
+    {
+
+        <div class="row">
+
+            <h3>@q.Description</h3>
+            @foreach (var a in q.Answers)
+            {
+                <div class="col-md-12">
+                    <p>@a.Description</p>
+                     @Html.RadioButtonFor(m => a.Description, a.Id,new {name="answerGiven"+@a.QuestionId})
+                </div>
+            }
+        </div>
+    }*@
+
+
+
+@using (Html.BeginForm("SaveExam", "Exam", FormMethod.Post))
+{
+
+
+    @Html.HiddenFor(m => m.ExamId)
+    @*@Html.HiddenFor(m=>m.TakenExamId)*@
+    <div class="row">
+        <div class="col-md-7">
+            <h2>@Html.DisplayFor(m => m.CurrentExam.Name)</h2>   
+        </div>
+        <div class="col-md-12 label-danger"><h5 style="color: white">Lütfen cevaplarınızın kaybolmaması için (session kopmaması için) arada Kaydet tuşuna basınız</h5> </div>
+        @*<div class="col-md-2 text-right">
+            <input type="submit" value="Kaydet" class="btn btn-success right" />
+        </div>
+        <div class="col-md-1 text-right">
+            <a href="/Exam/Finish/@Model.ExamId" class="btn btn-danger right">Sınavı Bitir</a>
+        </div>*@
+    </div>
+
+    <br />
+    
+        for (int j = 0; j < Model.CurrentExam.Questions.Count; j++)
+        {
+            <div class="col-md-6">
+                @Html.HiddenFor(m => m.CurrentExam.Questions[j].Id)
+                <b>@(j + 1)-@Html.DisplayFor(m => m.CurrentExam.Questions[j].Description)</b>
+                @foreach (var answer in Model.CurrentExam.Questions[j].Answers)
+                {
+                    <div>
+                        @if (Model.TakenExam!=null && Model.TakenExam.TakenExamAnswers.Exists(t => t.AnswerId == answer.Id))
+                        {
+                            rescheck = "checked";
+                            <h4>
+                                @Html.RadioButtonFor(m => m.CurrentExam.Questions[j].SelectedQAnswerId, answer.Id, new { id = answer.Id, Checked = @rescheck })
+                            <label for="@answer.Id" class="label label-info">@answer.Description</label>
+                            </h4>
+                        }
+                        else
+                        {
+                            rescheck = "";
+                            <h4>
+                                @Html.RadioButtonFor(m => m.CurrentExam.Questions[j].SelectedQAnswerId, answer.Id, new { id = answer.Id})
+                            <label for="@answer.Id" class="label label-info">@answer.Description</label>
+                        </h4>
+                        }
+                        
+                    </div>
+                }
+                @Html.ValidationMessageFor(m => m.CurrentExam.Questions[j].SelectedQAnswerId)
+                <br />
+            </div>
+
+        }
+
+    <div class="row">
+        <div class="col-md-offset-7 col-md-2 text-right">
+            <input type="submit" value="Kaydet" name="saveExam" class="btn btn-success right" />
+        </div>
+        <div class="col-md-1 text-right">
+            <input type="submit" value="Sınavı Bitir" name="finishExam" class="btn btn-danger right"/>
+            @*<a href="/Exam/Finish/@Model.ExamId" class="btn btn-danger right">Sınavı Bitir</a>*@
+        </div>
+    </div>
+    <div class="row">
+        <label class="label label-success">@TempData["message"]</label>
+    </div>
+}
+
